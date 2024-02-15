@@ -70,6 +70,11 @@
     * `restart()` ：复位`PC`
   * `long img_size = load_img()` ：将用户提供的镜像文件从`RESET_VECTOR`地址开始写入存储器。若用户不提供，则使用`default build-in image`
   * `init_sdb()` ：初始化简易调试器
+    * `init_regex()` ：初始化正则表达式相关规则
+      * `regcomp` ：将用于匹配表达式中每一个`token`的`pattern`转换成C语言能处理的格式。
+        * 这种格式的数据存储于类型为`regex_t`的变量，即`re`数据的成员。
+        * `rules`的数组则存储所有的`pattern`。
+      * `regerror` ：若函数`regcomp`未正常工作，则存储相应的错误信息。
   * `welcome()` ：输出欢迎信息
     * 以及trace的状态信息
     * 还输出了编译的时间和日期
@@ -78,21 +83,8 @@
     * `rl_gets()` ：读取`(nemu) `后的字符串
     * `cmd`指向的是读取到的**命令**字符串
     * `args`指向的是读取到的**参数**字符串
-    * `cmd_table`存储的是`nemu`内置的命令：`cmd_help`、`cmd_c`和`cmd_q`是函数指针
-      * {"help", `"Display information about all supported commands"`, `cmd_help`}
-      * {`"c"`, `"Continue the execution of the program"`, `cmd_c`}：
-        ```c
-        static int cmd_c(char *args) {
-          cpu_exec(-1);
-          return 0;
-        }
-        ```
-      * {`"q"`, `"Exit NEMU"`, `cmd_q`}：
-        ```c
-        static int cmd_q(char *args) {
-          return -1;
-        }
-        ```
+    * `cmd_table`存储的是`nemu`可以执行的命令
+      * `cmd_help`、`cmd_c`和`cmd_q`是函数指针。
 * `is_exit_status_bad()` ：       
 
 ### NEMU指令执行框架
@@ -121,5 +113,7 @@
 6. [C 库函数 - fseek()](https://www.runoob.com/cprogramming/c-function-fseek.html)
 7. [C 库函数 - ftell()](https://www.runoob.com/cprogramming/c-function-ftell.html)
 8. [strtok()函数详解！](https://blog.csdn.net/weibo1230123/article/details/80177898)
-9. [C语言中sscanf函数的简明教程](https://blog.csdn.net/centralunit/article/details/112938407)
+9. [C语言用regcomp、regexec、regfree和regerror函数实现正则表达式校验 ](https://www.cnblogs.com/liudw-0215/p/9724347.html)
+10. [C语言正则表达式详解 regcomp() regexec() regfree()详解](https://blog.csdn.net/derkampf/article/details/70661551)
+11. [C语言printf中%s、%*s、%*.*s的作用以及实现一个进度条](https://blog.csdn.net/bjbz_cxy/article/details/126799481)
    
