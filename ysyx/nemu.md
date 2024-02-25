@@ -75,6 +75,7 @@
         * 这种格式的数据存储于类型为`regex_t`的变量，即`re`数据的成员。
         * `rules`的数组则存储所有的`pattern`。
       * `regerror` ：若函数`regcomp`未正常工作，则存储相应的错误信息。
+    * `init_wp_pool()` ：
   * `welcome()` ：输出欢迎信息
     * 以及trace的状态信息
     * 还输出了编译的时间和日期
@@ -88,14 +89,20 @@
 * `is_exit_status_bad()` ：       
 
 ### NEMU指令执行框架
-* `cpu_exec(n)` ：执行n条指令
-  * `execute(n)` ：
-    * 执行指令总数递增
-    * `exec_once(&s, cpu.pc)`
-      * `isa_exec_once(s)`：根据特定的CPU架构执行指令
-        * `inst_fetch(&s->snpc, 4)` ：取值
-        * `decode_exec(s)` ：译码
-      * 前后一堆复杂的东西看不懂
+* <u>***`cpu_exec(n)`***</u> ：执行n条指令
+  * <u>***`execute(n)`***</u> ：
+    * 执行指令总数递增。
+    * <u>***`exec_once(&s, cpu.pc)`***</u> ：
+      * `s->pc`和`s->snpc`指向`cpu.pc`。
+      * <u>***`isa_exec_once(s)`***</u> ：根据特定的CPU架构执行指令。
+        * <u>***`inst_fetch(&s->snpc, 4)`***</u> ：
+          * 取指存放于`s->isa.inst.val`。
+          * 更新`s->snpc`指向下一条指令 ：`s->snpc += 4/8`
+        * <u>***`decode_exec(s)`***</u> 
+          * `s->dnpc`指向`s->snpc`。
+          * 翻译并**执行**读取到的指令。  
+      * `cpu.pc`指向`s->dnpc`
+      * 与 **`trace`** 有关，暂时不用管。
   * 更新时间和`nemu_state`
   * `statistic(n)` ：统计执行情况
     * CPU结束状态
@@ -116,4 +123,12 @@
 9. [C语言用regcomp、regexec、regfree和regerror函数实现正则表达式校验 ](https://www.cnblogs.com/liudw-0215/p/9724347.html)
 10. [C语言正则表达式详解 regcomp() regexec() regfree()详解](https://blog.csdn.net/derkampf/article/details/70661551)
 11. [C语言printf中%s、%*s、%*.*s的作用以及实现一个进度条](https://blog.csdn.net/bjbz_cxy/article/details/126799481)
+12. [巴科斯范式（Backus–Naur Form）介绍](https://www.cnblogs.com/BstuderBlog/p/16151372.html)
+13. [printf 改变输出颜色](https://blog.csdn.net/hhtang/article/details/4726821)
+14. [C语言带颜色的printf/fprintf打印](https://blog.csdn.net/ericbar/article/details/79652086)
+15. [riscv交叉编译器版本问题](https://blog.csdn.net/u014558361/article/details/135372254)
+16. [谨以此写下本人安装riscv的全过程 简单易懂！！](https://blog.csdn.net/qq_41976613/article/details/89629372)
+17. [riscv-gnu-toolchain 交叉编译器如何构建？](https://www.zhihu.com/question/560687334/answer/3281645780?utm_id=0)
+18. [RISC-V GNU编译环境搭建与运行实践](https://blog.csdn.net/ALLap97/article/details/112373544)
+19. [安装 RISC-V 交叉编译工具链](https://soc.ustc.edu.cn/CECS/lab0/riscv/)
    
