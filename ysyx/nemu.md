@@ -100,7 +100,16 @@
           * 更新`s->snpc`指向下一条指令 ：`s->snpc += 4/8`
         * <u>***`decode_exec(s)`***</u> 
           * `s->dnpc`指向`s->snpc`。
-          * 翻译并**执行**读取到的指令。  
+          * `INSTPAT_START()`  ：使变量`__instpat_end`指向标签`__instpat_end_`的地址
+          * `INSTPAT(xxx)`  
+            * `pattern_decode` ： 可能使用了某种匹配算法根据输入的`pattern`生成特定的`key、mask、shift`。每一条指令都有**独一无二的`pattern`**。
+            * `if...` ： 判断读取到的当前指令是否符合当前`pattern`（利用`key、mask、shift`）。
+            * 若**符合**，则`INSTPAT_MATCH` 
+              * `decode_operand` ： 取寄存器、立即数。
+              * 执行指令。
+              * `goto...` ：跳转到`INSTPAT_END`，结束`decode_exec()`。
+            * 若**不符**，则执行下一条`INSTPAT(xxx)`，直至遍历匹配规则，报错。
+          * `INSTPAT_END()`  ： 存放标签`__instpat_end_`。
       * `cpu.pc`指向`s->dnpc`
       * 与 **`trace`** 有关，暂时不用管。
   * 更新时间和`nemu_state`
@@ -126,9 +135,8 @@
 12. [巴科斯范式（Backus–Naur Form）介绍](https://www.cnblogs.com/BstuderBlog/p/16151372.html)
 13. [printf 改变输出颜色](https://blog.csdn.net/hhtang/article/details/4726821)
 14. [C语言带颜色的printf/fprintf打印](https://blog.csdn.net/ericbar/article/details/79652086)
-15. [riscv交叉编译器版本问题](https://blog.csdn.net/u014558361/article/details/135372254)
-16. [谨以此写下本人安装riscv的全过程 简单易懂！！](https://blog.csdn.net/qq_41976613/article/details/89629372)
-17. [riscv-gnu-toolchain 交叉编译器如何构建？](https://www.zhihu.com/question/560687334/answer/3281645780?utm_id=0)
-18. [RISC-V GNU编译环境搭建与运行实践](https://blog.csdn.net/ALLap97/article/details/112373544)
-19. [安装 RISC-V 交叉编译工具链](https://soc.ustc.edu.cn/CECS/lab0/riscv/)
+15. [C语言中的逻辑右移和算术左移](https://blog.csdn.net/zyings/article/details/47084485)
+16. [如何将汇编语言转化为hex机器码](https://blog.csdn.net/fjh1997/article/details/105334158)
+17. [goto语句中的标签地址](https://blog.csdn.net/fjb2080/article/details/5248359)
+18. [Labels as Values](https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html)
    
