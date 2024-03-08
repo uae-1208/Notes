@@ -1,7 +1,7 @@
 <!-- GFM-TOC -->
 - [关键信息摘录](#关键信息摘录)
   - [menuconfig](#menuconfig)
-  - [](#)
+  - [nemu\_trap](#nemu_trap)
 - [我的注解](#我的注解)
   - [Makefile](#makefile)
   - [存储](#存储)
@@ -28,7 +28,7 @@
   * `DIRS-y` - 参与编译的目录集合, 该目录下的所有文件都会被加入到`SRCS-y`中
   * `DIRS-BLACKLIST-y` - 不参与编译的目录集合, 该目录下的所有文件都会被加入到`SRCS-BLACKLIST-y`中
 
-###
+### nemu_trap
 * 客户程序执行了`nemu_trap`指令. 这是一条虚构的特殊指令, 它是为了在NEMU中让客户程序指示执行的结束而加入的, NEMU在ISA手册中选择了一些用于调试的指令, 并将`nemu_trap`的特殊含义赋予它们. 例如在`riscv32`的手册中, NEMU选择了`ebreak`指令来充当`nemu_trap`. 为了表示客户程序是否成功结束, `nemu_trap`指令还会接收一个表示结束状态的参数. 当客户程序执行了这条指令之后, NEMU将会根据这个结束状态参数来设置NEMU的结束状态, 并根据不同的状态输出不同的结束信息, 主要包括：
   * `HIT GOOD TRAP` - 客户程序正确地结束执行
   * `HIT BAD TRAP` - 客户程序错误地结束执行
@@ -136,7 +136,7 @@
 13. [printf 改变输出颜色](https://blog.csdn.net/hhtang/article/details/4726821)
 14. [C语言带颜色的printf/fprintf打印](https://blog.csdn.net/ericbar/article/details/79652086)
 15. [C语言中的逻辑右移和算术左移](https://blog.csdn.net/zyings/article/details/47084485)
-16. [如何将汇编语言转化为hex机器码](https://blog.csdn.net/fjh1997/article/details/105334158)
+
 17. [goto语句中的标签地址](https://blog.csdn.net/fjb2080/article/details/5248359)
 18. [Labels as Values](https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html)
    

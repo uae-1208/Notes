@@ -21,6 +21,7 @@ $ verilator <options> <verilog-file> <cpp-file>
 - `testbench`在`Verilator`中叫做`wrapper file`
 - 编写的.v文件 (如top.v) 会产生仿真中使用的.h文件 (如Vtop.h) 。而 Vtop.h中定义了`Verilated model` : `Vtop* top`。
 - `eval()`函数更新电路的状态
+- `Verilated::gotFinish(true)`可以终结仿真：[Setting Verilated::gotFinish() to true without $finish #2113](https://github.com/verilator/verilator/issues/2113)
   
 
 ---
