@@ -7,6 +7,7 @@
   - [存储](#存储)
   - [NEMU模拟器框架](#nemu模拟器框架)
   - [NEMU指令执行框架](#nemu指令执行框架)
+  - [NEMU的nemu\_trap机制](#nemu的nemu_trap机制)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
 
@@ -68,7 +69,7 @@
   * `init_isa()` ：根据特定的CPU架构进行初始化
     * `memcpy()` ：加载一段非常简单的客户程序指令，该指令位于32位数组`img`当中
     * `restart()` ：复位`PC`
-  * `long img_size = load_img()` ：将用户提供的镜像文件从`RESET_VECTOR`地址开始写入存储器。若用户不提供，则使用`default build-in image`
+  * `long img_size = load_img()` ：将用户提供的镜像文件(在`make run`命令中由`-l`参数导入)从`RESET_VECTOR`地址开始写入存储器。若用户不提供，则使用`default build-in image`。
   * `init_sdb()` ：初始化简易调试器
     * `init_regex()` ：初始化正则表达式相关规则
       * `regcomp` ：将用于匹配表达式中每一个`token`的`pattern`转换成C语言能处理的格式。
@@ -81,6 +82,7 @@
     * 还输出了编译的时间和日期
 * `engine_start()` 
   * `sdb_mainloop()` ：不断地从用户那里接收命令，直至用户输入`q`。
+    * `is_batch_mode`：如果用户设置为批处理模式`batch mode`，则执行`cmd_c(NULL)`，即直接运行`image`。否则往下运行`sdb`。
     * `rl_gets()` ：读取`(nemu) `后的字符串
     * `cmd`指向的是读取到的**命令**字符串
     * `args`指向的是读取到的**参数**字符串
@@ -118,6 +120,32 @@
     * 执行客户程序所花费的时间
     * 执行的指令数量
     * 平均执行频率（MIPS）
+
+### NEMU的nemu_trap机制
+* `nemu_state.state`的取值范围：
+  * `NEMU_RUNNING`：表示NEMU处于执行指令的状态。
+  * `NEMU_STOP`：表示sdb要求NEMU执行的指令已经执行完毕，暂停一下。
+  * `NEMU_END`：表现NEMU执行了ebreak指令。
+  * `NEMU_ABORT`：表现NEMU遇到了未定义指令或者执行错误。
+  * `NEMU_QUIT`：
+* 当sdb命令NEMU执行指令时：
+  * 在`cpu_exec()`中，首先判断一下`nemu_state.state`的取值：
+    * 若为`NEMU_END`或`NEMU_ABORT`，则退出函数`cpu_exec()`。
+    * 否则，执行`nemu_state.state = NEMU_RUNNING`。
+  * 然后在`execute(n)`中，在for循环中调用`exec_once`，然后判断`nemu_state.state == NEMU_RUNNING`，否则继续执行，不是则中断for循环。
+    * 当执行`ebreak`指令时，实际上执行：
+      * `nemu_state.state = NEMU_END`；
+      * `nemu_state.halt_pc = pc`；
+      * `nemu_state.halt_ret`被设置为`$a0`中的值，即运行于nemu上的程序的main函数返回值。
+  * 再次`switch (nemu_state.state)`：
+    * 若为`NEMU_RUNNING`，则设置为`NEMU_STOP`。
+    * 若为`NEMU_ABORT`，则打印`ABORT`。
+    * 若为`NEMU_END`：
+      * nemu_state.halt_ret == 0，则打印`HIT GOOD TRAP`。（main函数`return 0`）
+      * nemu_state.halt_ret != 0，则打印`HIT BAD TRAP`。（main函数没有`return 0`）
+    * 若为`NEMU_QUIT`，则`statistic()`。
+  
+
 
 ---
 ## 学习资料
