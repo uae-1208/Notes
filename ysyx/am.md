@@ -5,6 +5,7 @@
     - [相关变量](#相关变量)
     - [make命令执行流程](#make命令执行流程)
   - [链接、汇编](#链接汇编)
+- [学习资料](#学习资料)
 <!-- GFM-TOC -->
 
 ---
@@ -89,3 +90,11 @@
 - 在`trm.c`中定义了`_trm_init()`：
   - `int ret = main(mainargs);`
   - `halt(ret);`
+
+
+---
+## 学习资料
+1. [linux 源码中__asm__ __volatile__作用](https://blog.csdn.net/yt_42370304/article/details/84982864)
+2. [C 标准库 - <stdarg.h>](https://www.runoob.com/cprogramming/c-standard-library-stdarg-h.html)
+3. [C 库函数 - vsprintf()](https://www.runoob.com/cprogramming/c-function-vsprintf.html)
+4. [C 库函数 - sprintf()](https://www.runoob.com/cprogramming/c-function-sprintf.html)
