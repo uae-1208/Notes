@@ -92,6 +92,8 @@
 
 ### NEMU指令执行框架
 * <u>***`cpu_exec(n)`***</u> ：执行n条指令
+  * `g_print_step` ： n不超过`MAX_INST_TO_PRINT`时则打印指令信息。
+  * [NEMU的nemu_trap机制](NEMU的nemu_trap机制)
   * <u>***`execute(n)`***</u> ：
     * 执行指令总数递增。
     * <u>***`exec_once(&s, cpu.pc)`***</u> ：
@@ -113,7 +115,14 @@
             * 若**不符**，则执行下一条`INSTPAT(xxx)`，直至遍历匹配规则，报错。
           * `INSTPAT_END()`  ： 存放标签`__instpat_end_`。
       * `cpu.pc`指向`s->dnpc`
-      * 与 **`trace`** 有关，暂时不用管。
+      * `CONFIG_ITRACE`部分：向`s->logbuf`写入当前执行的指令的地址和机器码。
+      * 如果未定义`CONFIG_ISA_loongarch32r`，则<u>***`disassemble(......)`***</u>
+        * 使用`llvm`对当前指令的机器码进行反汇编操作。
+        * 向`s->logbuf`写入反汇编结果。
+    * `g_nr_guest_inst ++`
+    * <u>***`trace_and_difftest(&s, cpu.pc)`***</u>
+      * 若定义了`CONFIG_ITRACE_COND`，则将`s->logbuf`写入进log中。
+      * n不超过`MAX_INST_TO_PRINT`时，则在终端中输出`s->logbuf`。
   * 更新时间和`nemu_state`
   * `statistic(n)` ：统计执行情况
     * CPU结束状态
