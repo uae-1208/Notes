@@ -1,6 +1,7 @@
 <!-- GFM-TOC -->
 - [常用函数](#常用函数)
 - [变量与赋值](#变量与赋值)
+- [make参数](#make参数)
 - [其他](#其他)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
@@ -59,6 +60,9 @@
     $ echo '$(abspath npc)
     /home/uae/ysyx/ysyx-workbench/npc
   ```
+11. `join`
+12. `subst`
+
 
 ---
 ## 变量与赋值
@@ -66,6 +70,12 @@
 * `$<`，表示规则中的`第一个条件`。
 * `$?`，表示规则中所有`比目标新的条件`，组成一个列表，以空格分隔。
 * `$^`，表示规则中的`所有条件`，组成一个列表，以空格分隔。 
+* `$*`,表示目标模式中"%"及其之前的部分。如果目标是`dir/a.foo.b`，并且目标的模式是`a.%.b`，那么，`$*`的值就是`dir /a.foo`。
+
+---
+## make参数
+* `-s`:在命令运行时不输出命令的输出。
+* `-C`:指定读取makefile的目录。
 
 ---
 ## 其他
@@ -86,3 +96,6 @@
 2. [CSDN : Makefile学习3 - foreach函数](https://blog.csdn.net/to_be_better_wen/article/details/130038966)
 3. [CSDN : Makefile中notdir函数使用方法](https://blog.csdn.net/yanlaifan/article/details/71402795)
 4. [CSDN : Makefile（06）— 文件名操作函数（dir、notdir、suffix、basename、addsuffix、addperfix、join、wildcard）](https://blog.csdn.net/stephenbruce/article/details/130040336)
+5. [Makefile中的subst函数](https://blog.csdn.net/pure_dreams/article/details/79976367)
+6. [Linux之Makefile(join)](https://blog.csdn.net/zhoudengqing/article/details/41778267)
+7. [Makefile教程（绝对经典，所有问题看这一篇足够了）](https://blog.csdn.net/weixin_38391755/article/details/80380786)

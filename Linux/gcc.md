@@ -1,7 +1,6 @@
 <!-- GFM-TOC -->
 - [关于编译](#关于编译)
 - [gcc参数](#gcc参数)
-- [objdump参数](#objdump参数)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
 ---
@@ -29,10 +28,8 @@
 - `-Idir`指定**头文件**的所在路径为`dir`
 - `-g`产生**调试**信息
 - `-O`在编译、链接过程中进行优化
-  
-## objdump参数
-- gcc -c test.s
-- objdump -d test.o
+- gcc -c `xxx.s` -o xxx(.out)
+- `objdump` -d xxx(.o/.out) >> xxx.txt
 
 
 ## 学习资料
