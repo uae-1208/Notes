@@ -70,6 +70,18 @@
     * `memcpy()` ：加载一段非常简单的客户程序指令，该指令位于32位数组`img`当中
     * `restart()` ：复位`PC`
   * `long img_size = load_img()` ：将用户提供的镜像文件(在`make run`命令中由`-l`参数导入)从`RESET_VECTOR`地址开始写入存储器。若用户不提供，则使用`default build-in image`。
+  * `load_elf()` ：导入elf文件并初始化，由uae添加。
+  * `init_difftest()` ：初始化DiffTest
+    * `handle = dlopen(ref_so_file, RTLD_LAZY)` ：打开动态库文件并存入`handle`。
+    * `dlsym` x 5 : 从动态库中获取符号函数地址，这些函数都在动态库中声明和定义。
+      * `ref_difftest_memcpy()`
+      * `ref_difftest_regcpy()`
+      * `ref_difftest_exec()`
+      * `ref_difftest_raise_intr()`
+      * `ref_difftest_init()`
+    * `ref_difftest_init(port);` ：初始化`REF`
+    * `ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF)` ： 利用`DUT`的`image`文件初始化`REF`的内存。
+    * `ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF)` ：利用`DUT`的寄存器值初始化`REF`的寄存器。
   * `init_sdb()` ：初始化简易调试器
     * `init_regex()` ：初始化正则表达式相关规则
       * `regcomp` ：将用于匹配表达式中每一个`token`的`pattern`转换成C语言能处理的格式。
@@ -123,6 +135,10 @@
     * <u>***`trace_and_difftest(&s, cpu.pc)`***</u>
       * 若定义了`CONFIG_ITRACE_COND`，则将`s->logbuf`写入进log中。
       * n不超过`MAX_INST_TO_PRINT`时，则在终端中输出`s->logbuf`。
+      * `difftest_step(_this->pc, dnpc)`：进行difftest
+        * `ref_difftest_exec(1);` ： 使`REF`执行一条指令。
+        * `ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);` ： 将`REF`的寄存器状态复制给`ref_r`。
+        * `checkregs(&ref_r, pc, npc);` ：检查`DUT`和`REF`的所有寄存器值是否相同，不相同则终止`DUT`的运行。
   * 更新时间和`nemu_state`
   * `statistic(n)` ：统计执行情况
     * CPU结束状态
@@ -173,7 +189,8 @@
 13. [printf 改变输出颜色](https://blog.csdn.net/hhtang/article/details/4726821)
 14. [C语言带颜色的printf/fprintf打印](https://blog.csdn.net/ericbar/article/details/79652086)
 15. [C语言中的逻辑右移和算术左移](https://blog.csdn.net/zyings/article/details/47084485)
-
-17. [goto语句中的标签地址](https://blog.csdn.net/fjb2080/article/details/5248359)
-18. [Labels as Values](https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html)
+16. [goto语句中的标签地址](https://blog.csdn.net/fjb2080/article/details/5248359)
+17. [Labels as Values](https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html)
+18. [dlopen系列函数详解](https://zhuanlan.zhihu.com/p/560349203)
+19. [动态库加载函数dlsym 在C/C++编程中的使用](https://blog.csdn.net/xuedaon/article/details/123401531)
    
