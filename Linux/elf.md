@@ -4,7 +4,7 @@
 - [Section Headers Table](#section-headers-table)
 - [Program Headers Table](#program-headers-table)
 - [section和segmet的区别](#section和segmet的区别)
-- [`.strtab`](#strtab)
+- [symtab (symbol table)](#symtab-symbol-table)
 - [静态库(.a)](#静态库a)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
@@ -42,7 +42,8 @@ ELF Header:
   Number of section headers:         10
   Section header string table index: 9
 ```
-- `ELF Header`描述了体系结构和操作系统等基本信息，并指出`Section Header Table`和`Program Header Tabl`e在文件中的什么位置.
+- `ELF Header`描述了体系结构和操作系统等基本信息，并指出`Section Header Table`和`Program Header Tabl`e在文件中的什么位置，以及他们的大小。
+- `Number of section headers`展示了`Section Header Table`中的`section`个数。
 
 
 
@@ -110,7 +111,7 @@ The decoding of unwind sections for machine type RISC-V is not currently support
 
 
 
-## `.strtab`
+## symtab (symbol table)
 ```
 Symbol table '.symtab' contains 35 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
@@ -157,6 +158,8 @@ Symbol table '.symtab' contains 35 entries:
   - `SECTION`代表该`symbol`是一个节。
   - `FUNC`代表该`symbol`是一个函数。
   - `OBJECT`代表该`symbol`是一个变量。
+
+
 
 
 
