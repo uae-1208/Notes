@@ -2,12 +2,17 @@
 - [关键信息摘录](#关键信息摘录)
   - [menuconfig](#menuconfig)
   - [nemu\_trap](#nemu_trap)
+  - [IO](#io)
 - [我的注解](#我的注解)
   - [Makefile](#makefile)
   - [存储](#存储)
   - [NEMU模拟器框架](#nemu模拟器框架)
   - [NEMU指令执行框架](#nemu指令执行框架)
   - [NEMU的nemu\_trap机制](#nemu的nemu_trap机制)
+  - [NEMU的IO机制](#nemu的io机制)
+    - [serial](#serial)
+    - [rtc](#rtc)
+    - [vga](#vga)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
 
@@ -34,6 +39,16 @@
   * `HIT GOOD TRAP` - 客户程序正确地结束执行
   * `HIT BAD TRAP` - 客户程序错误地结束执行
   * `ABORT` - 客户程序意外终止, 并未结束执行
+
+### IO
+* `paddr_read()`和`paddr_write()`会判断地址addr落在物理内存空间还是设备空间, 若落在物理内存空间, 就会通过`pmem_read()`和`pmem_write()`来访问真正的物理内存; 否则就通过`map_read()`和`map_write()`来访问相应的设备. 从这个角度来看, 内存和外设在CPU来看并没有什么不同, 只不过都是一个字节编址的对象而已.
+* 另一方面, `cpu_exec()`在执行每条指令之后就会调用`device_update()`函数, 这个函数首先会检查距离上次设备更新是否已经超过一定时间, 若是, 则会尝试刷新屏幕, 并进一步检查是否有按键按下/释放, 以及是否点击了窗口的X按钮; 否则则直接返回, 避免检查过于频繁, 因为上述事件发生的频率是很低的.
+* 需要注意的是, 这里的reg寄存器并不是上文讨论的设备寄存器, 因为设备寄存器的编号是架构相关的。
+
+
+
+
+
 
 
 
@@ -65,7 +80,11 @@
   * `init_log(log_file)` ：初始化日志文件
     * 打开日志文件`log_file`，该变量的值由`getopt_long()`函数解析后为`$(BUILD_DIR)/nemu-log.txt`，见[Makefile](#makefile)中的`make run`部分
   * `init_mem()` ：将模拟CPU的存储器都以**相同的随机数**初始化
-  * `IFDEF(macro, abc)` ：如果宏`macro`被定义了，则执行语句`abc`（可见[神奇的宏定义](https://www.cnblogs.com/zhangyi1357/p/16192431.html)）
+    * `IFDEF(macro, abc)` ：如果宏`macro`被定义了，则执行语句`abc`（可见[神奇的宏定义](https://www.cnblogs.com/zhangyi1357/p/16192431.html)）
+  * `IFDEF(CONFIG_DEVICE, init_device())` ：初始化外设
+    * `ioe_init()` ：代码位于`am`之中。
+    * `init_map()` ：分配大小为`IO_SPACE_MAX`的`io_space`，同时`p_space`初始也指向`io_space`。
+    * `init_serial()` ：初始化串口相关。[NEMU的IO机制](#nemu的io机制)
   * `init_isa()` ：根据特定的CPU架构进行初始化
     * `memcpy()` ：加载一段非常简单的客户程序指令，该指令位于32位数组`img`当中
     * `restart()` ：复位`PC`
@@ -170,6 +189,73 @@
       * nemu_state.halt_ret != 0，则打印`HIT BAD TRAP`。（main函数没有`return 0`）
     * 若为`NEMU_QUIT`，则`statistic()`。
   
+
+
+
+### NEMU的IO机制
+#### serial
+> * 串口初始化时会注册`SERIAL_PORT = 0xa00003F8`处长度为8字节的MMIO空间，由`serial_base`指向该空间。   
+> * `serial_base[0]`是数据寄存器，目前只有该寄存器有用（向该寄存器写入ch，则串口打印ch）。
+
+
+* `init_serial()` ：初始化串口。
+  * `serial_base = new_space(8)` ：在`io_space`中分配8字节的空间，并由`serial_base`指向该空间。
+    * `p = p_space`指向上一次从`io_space`中分配出去的内存的后面。
+    * 让`size`页对齐。
+    * ` p_space += size`。即更新`p_space`，方便下一次分配。
+    * 返回`p`
+  * `add_mmio_map(...)` ：将新外设的信息加入`maps`中。
+    * `left = addr, right = addr + len - 1` ：`left`指向新外设内存空间的头部，`right`指向新外设内存空间的尾部。
+    * `if (in_pmem(left) || in_pmem(right))` ：判断新外设的内存空间是否与`pmem`重叠。
+    * `for循环` ：一一检查新外设的内存空间是否与旧外设的内存空间重叠。已存的外设相关信息存储于结构体数组`maps`当中。
+    * `maps[nr_map] = ...` ：在`maps`中新增外设的信息。
+* `putch(ch)` ：位于`trm.c`中，非`glibc`中的`putch()`。
+  * `outb(SERIAL_PORT, ch)` ：往`SERIAL_PORT`处的内存写入`ch`，翻译成rv汇编就是`sb	a0,1016(a5) # a00003f8`，其中`SERIAL_PORT` = `0xa00003f8`。
+  * 在`nemu`中，`sb`会调用`vaddr_write()->paddr_write()` 
+  * 若`in_pmem(addr)`，则`pmem_write(addr, len, data)`。
+  * 否则就`mmio_write(addr, len, data)` ：`SERIAL_PORT`超出了`pmem`的范围，访问的内存是外设的映射空间。
+    * `fetch_mmio_map(addr) -> find_mapid_by_addr((maps, nr_map, addr)` ：查看`addr`位于哪一个外设的映射内存空间当中，返回其在中`maps`的编号。
+      * `map_inside(maps + i, addr)` ：判断是否在该范围之中。
+      * `difftest_skip_ref()` ：若当前指令读/写一次外设的映射内存空间，就让`REF`跳过该指令，并将`DUT`的寄存器复制给`REF`。
+    * `map_write(addr, len, data, some_maps)` ：
+      * `check_bound(map, addr)` ： 再一次检查`addr`位于该外设的映射内存范围之内。
+      * `host_write(map->space + offset, len, data)` ：往外设的设备寄存器中写入值（在`nemu`中是向`io_space`中写入）。
+      * `invoke_callback(...)` ：调用该外设的句柄函数。外设的设备寄存器发生变化之后，外设开始工作。
+#### rtc
+> * i8253计时器初始化时会注册`0xa0000048`处长度为8字节的MMIO空间, 它们都会映射到两个32位的RTC寄存器。
+> * 计时器注册`RTC_ADDR = 0xa00003F8`处长度为8字节的MMIO空间，由`(uint32_t) rtc_port_base`指向该空间。   
+> * `rtc_port_base[0]`是低32位寄存器，`rtc_port_base[1]`是高32位寄存器。目前只支持***读***该寄存器。   
+> * 只有读`RTC_ADDR + 4`地址时，`rtc_port_base`寄存器才会更新为最新的时间。  
+
+
+* `init_timer()` ：初始化时钟。
+  * `rtc_port_base = (uint32_t *)new_space(8)` ：在`io_space`中分配8字节的空间，并由`rtc_port_base`指向该空间。
+  * `add_mmio_map(...)` ：将新外设的信息加入`maps`中。
+* `inl(RTC_ADDR)` ：从`RTC_ADDR`处的内存读4字节数据，翻译成rv汇编就是`lw	a4,76(a5) # a0000048 <_end+0x1ff62048>`，其中`RTC_ADDR` = `0xa0000048`。
+  * 在`nemu`中，`lw`会调用`vaddr_read()->paddr_read()` 
+  * 若`in_pmem(addr)`，则`pmem_read(addr, len)`。
+  * 否则就`mmio_read(addr, len))` ：`RTC_ADDR`超出了`pmem`的范围，访问的内存是外设的映射空间。
+    * `fetch_mmio_map(addr) -> find_mapid_by_addr((maps, nr_map, addr)` ：查看`addr`位于哪一个外设的映射内存空间当中，返回其在中`maps`的编号。
+      * `map_inside(maps + i, addr)` ：判断是否在该范围之中。
+      * `difftest_skip_ref()` ：若当前指令读/写一次外设的映射内存空间，就让`REF`跳过该指令，并将`DUT`的寄存器复制给`REF`。
+    * `map_read(addr, len, some_maps)` ：
+      * `check_bound(map, addr)` ： 再一次检查`addr`位于该外设的映射内存范围之内。
+      * `invoke_callback(...)` ：调用该外设的句柄函数。外设的设备寄存器发生变化之后，外设开始工作。
+      * `ret = host_read(map->space + offset, len)` ：从外设的设备寄存器中读取值（在`nemu`中是向`io_space`中读）。
+#### vga
+> * VGA初始化时注册了从`0xa1000000`开始的一段用于映射到`video memory`(显存, 也叫frame buffer, 帧缓冲)的MMIO空间。代码只模拟了`400x300x32`的图形模式, 一个像素占32个bit的存储空间, R(red), G(green), B(blue), A(alpha)各占8 bit, 其中VGA不使用alpha的信息. 
+> * VGA注册`VGACTL_ADDR = 0xa0000100`处长度为8字节的MMIO空间，由`(uint32_t) vgactl_port_base`指向该空间。   
+> * `vgactl_port_base[0]`是32位`size寄存器`，存储vga画面大小的数据，***只读***。
+> * `vgactl_port_base[1]`是32位同步寄存器，设为`1`时更新vga屏幕，且自动清零。   
+
+
+* `init_vga()` ：初始化vga。
+  * `vgactl_port_base = (uint32_t *)new_space(8)` ：在`io_space`中分配8字节的空间，并由`vgactl_port_base`指向该空间。
+  * `vgactl_port_base[0] = (screen_width() << 16) | screen_height();` ：往`size寄存器`填充vga的画面大小。
+  * `add_mmio_map(...)` ：将`vga_ctl`的信息加入`maps`中。
+  * `vmem = new_space(screen_size())` ：在`io_space`中分配`screen_size()`字节的空间作为显存，并由`vmem`指向该空间。
+  * `add_mmio_map(...)` ：将`vmem`的信息加入`maps`中,但是不指定外设句柄。
+
 
 
 ---
