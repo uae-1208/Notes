@@ -3,6 +3,7 @@
   - [menuconfig](#menuconfig)
   - [nemu\_trap](#nemu_trap)
   - [IO](#io)
+  - [中断异常](#中断异常)
 - [我的注解](#我的注解)
   - [Makefile](#makefile)
   - [存储](#存储)
@@ -13,6 +14,7 @@
     - [serial](#serial)
     - [rtc](#rtc)
     - [vga](#vga)
+  - [NEMU的CTE机制](#nemu的cte机制)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
 
@@ -44,6 +46,19 @@
 * `paddr_read()`和`paddr_write()`会判断地址addr落在物理内存空间还是设备空间, 若落在物理内存空间, 就会通过`pmem_read()`和`pmem_write()`来访问真正的物理内存; 否则就通过`map_read()`和`map_write()`来访问相应的设备. 从这个角度来看, 内存和外设在CPU来看并没有什么不同, 只不过都是一个字节编址的对象而已.
 * 另一方面, `cpu_exec()`在执行每条指令之后就会调用`device_update()`函数, 这个函数首先会检查距离上次设备更新是否已经超过一定时间, 若是, 则会尝试刷新屏幕, 并进一步检查是否有按键按下/释放, 以及是否点击了窗口的X按钮; 否则则直接返回, 避免检查过于频繁, 因为上述事件发生的频率是很低的.
 * 需要注意的是, 这里的reg寄存器并不是上文讨论的设备寄存器, 因为设备寄存器的编号是架构相关的。
+
+### 中断异常
+* "一条指令的执行是否会失败"这件事是不是确定性的呢? 显然这取决于"失败"的定义, 例如除0就是"除法指令的第二个操作数为0", 非法指令可以定义成"不属于ISA手册描述范围的指令", 而自陷指令可以认为是一种特殊的无条件失败. 不同的ISA手册都有各自对"失败"的定义, 例如RISC-V手册就不认为除0是一种失败, 因此即使除数为0, 在RISC-V处理器中这条指令也会按照指令手册的描述来执行.
+* 操作系统的处理过程其实需要哪些信息?
+  * 首先当然是引发这次执行流切换的原因, 是程序除0, 非法指令, 还是触发断点, 又或者是程序自愿陷入操作系统? 根据不同的原因, 操作系统都会进行不同的处理.
+  * 然后就是程序的上下文了, 在处理过程中, 操作系统可能会读出上下文中的一些寄存器, 根据它们的信息来进行进一步的处理. 例如操作系统读出PC所指向的非法指令, 看看其是否能被模拟执行. 事实上, 通过这些上下文, 操作系统还能实现一些神奇的功能, 你将会在PA4中了解更详细的信息.
+* 在操作系统中对`Context`成员的直接引用, 都属于架构相关的行为, 会损坏操作系统的可移植性. 不过大多数情况下, 操作系统并不需要单独访问`Context`结构中的成员. CTE也提供了一些的接口, 来让操作系统在必要的时候访问它们, 从而保证操作系统的相关代码与架构无关.
+  * `mepc寄存器` - 存放触发异常的PC
+  * `mstatus寄存器` - 存放处理器的状态
+  * `mcause寄存器` - 存放触发异常的原因
+  * `mtvec寄存器` - 存放异常入口地址
+
+
 
 
 
@@ -258,6 +273,34 @@
 
 
 
+### NEMU的CTE机制
+* 在用户程序中，调用`cte_init(simple_trap)` ：初始化`CTE`。
+  * `asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));` ：将`__am_asm_trap()`的地址作为异常入口地址。
+    * `__am_asm_trap()`指向的即是汇编程序`trap.S`，由驱动开发者编写。
+  * `user_handler`指向`simple_trap`，而函数`simple_trap()`是由用户定义的。
+* 用户程序调用`yield()` ：自陷。
+  * `asm volatile("li a7, 0xb; ecall");`。
+    * 往`a7`中写入`0xb`表明触发异常的原因是***自陷***。
+    * `ecall` ：硬件触发异常。
+* CPU执行`ecall`。
+  * `cpu.csr[MCAUSE] = R(17)` ：往`mcause`写入`a7`的值，确定触发异常的原因。
+  * `s->dnpc = isa_raise_intr(0, s->pc));`。
+    * `cpu.csr[MEPC] = epc;` ：往`mepc`写入`ecall`指令的pc值。
+    * `return cpu.csr[MTVEC];` ：pc设为`异常入口地址`（由`mtvec`存储），即`__am_asm_trap`。
+* `__am_asm_trap` / `trap.S` ：
+  * `MAP(REGS, PUSH)` ：将通用寄存器放入栈中，保存上下文。
+  * 先将`mcause`、`mstatus`和`mepc`写入通用寄存器中，再入栈。
+  * set mstatus.MPRV to pass difftest。
+  * 跳转至`__am_irq_handle` ：事件分发，由驱动开发者编写。
+    * 根据触发异常的原因设置事件种类。
+    * 调用`user_handler()` / `simple_trap()`。
+  * 恢复上下文：通用寄存器和相关`CSR`出栈。
+  * 由于`ecall`无法让pc更新，为了能让CPU执行指令`ecall`的下一条指令，(而不是`mret`后又继续`ecall`)，软件上让`pc+4`。
+  * `mret`。
+* CPU执行`mret`。
+  * `s->dnpc = cpu.csr[MEPC]` ：此时的`mepc`存储的不再是触发异常时的pc，而是`该pc + 4`。
+
+
 ---
 ## 学习资料
 1. [C/C++ 命令解析：getopt 方法详解和使用示例](https://blog.csdn.net/afei__/article/details/81261879)
@@ -278,5 +321,9 @@
 16. [goto语句中的标签地址](https://blog.csdn.net/fjb2080/article/details/5248359)
 17. [Labels as Values](https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html)
 18. [dlopen系列函数详解](https://zhuanlan.zhihu.com/p/560349203)
-19. [动态库加载函数dlsym 在C/C++编程中的使用](https://blog.csdn.net/xuedaon/article/details/123401531)
+19. [总结CSRs寄存器的读写指令](https://blog.csdn.net/kuankuan02/article/details/95452616)
+20. [RISC-V “Zicsr” CSR 指令集手册 翻译对照](https://www.santiego.ink/blog/post/27)
+21. [RISC-V 特权指令简介](https://soc.ustc.edu.cn/CECS/lab4/priv/)
+22. [动态库加载函数dlsym 在C/C++编程中的使用](https://blog.csdn.net/xuedaon/article/details/123401531)
+23. [动态库加载函数dlsym 在C/C++编程中的使用](https://blog.csdn.net/xuedaon/article/details/123401531)
    

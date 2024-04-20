@@ -9,10 +9,11 @@
      2. 再如，输入`(0x1 ++ 0x2)` 时会显示`if (p > q)  assert(0);`断言不通过。
 
 ## Trace
-  - `iringbuf`、`mtrace`和`ftrace`目前都无法通过`menuconfig`打开或者关闭，只能通过`$NEMU_HOME/src/monitor/monitor.c`、`$NEMU_HOME/src/cpu/cpu-exec.c`和`$NEMU_HOME/src/memory/vaddr.c`中的下述宏定义来配置:
+  - `iringbuf`、`mtrace`和`ftrace`目前都无法通过`menuconfig`打开或者关闭，只能通过`./include/common.h`中的下述宏定义来配置:
 ``` C
 #define CONFIG_IRINGBUF 1
 #define CONFIG_MTRACE   1
+#define CONFIG_DTRACE   1
 #define CONFIG_FTRACE   1
 ``` 
    - `ftrace`无法识别函数调用的`jalr`指令和普通的无条件跳转`jalr`指令。

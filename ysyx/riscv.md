@@ -6,6 +6,8 @@
 3. [RISC-V GNU编译环境搭建与运行实践](https://blog.csdn.net/ALLap97/article/details/112373544)
 4. [安装 RISC-V 交叉编译工具链](https://soc.ustc.edu.cn/CECS/lab0/riscv/)
 5. [对于RISV -V处理器，详解 gcc 编译器，Makefile中gcc编译器参数的含义_gcc riscv](https://zhuanlan.zhihu.com/p/660618423)
+6. [Verilog 有符号数间，及有符号数与常数比较大小](https://blog.csdn.net/sinat_29862967/article/details/119829214)
+7. [Verilog算术右移](https://blog.csdn.net/qq_41634276/article/details/80414488) 
 
 ---
 
