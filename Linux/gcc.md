@@ -1,6 +1,7 @@
 <!-- GFM-TOC -->
 - [关于编译](#关于编译)
 - [gcc参数](#gcc参数)
+- [objdump](#objdump)
 - [学习资料](#学习资料)
 <!-- GFM-TOC -->
 ---
@@ -29,6 +30,7 @@
 - `-g`产生**调试**信息
 - `-O`在编译、链接过程中进行优化
 - gcc -c `xxx.s` -o xxx(.out)
+## objdump
 - `objdump` -d xxx(.o/.out) >> xxx.txt
 
 

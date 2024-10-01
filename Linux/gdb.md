@@ -4,3 +4,15 @@
 4. 断点是当程序执行到某一代码行时中断，而观察点是当程序访问某个存储单元时中断
 5. 如果某个函数的局部变量发生访问越界，有可能并不立即产生段错误，而是在函数返回时产生段错误。
 6. GDB还自带一个叫TUI的简单界面. 在一个高度较高的窗口中运行GDB后, 输入layout split就可以切换到TUI, 这样你就可以同时从源代码和指令的角度来观察程序的行为了.    [gdb调试的layout使用](https://blog.csdn.net/zhangjs0322/article/details/10152279)
+
+
+
+* layout src
+* refresh
+* start
+* r
+* b
+* n
+* p
+* display
+* bt
