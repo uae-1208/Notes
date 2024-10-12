@@ -10,7 +10,8 @@
 
 ### API
   * [torch.nn.Linear](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear)
-  * [torch.nn.MSELoss](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html)、[torch.nn.BSELoss]
+  * [torch.nn.MSELoss](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html)、[torch.nn.BSELoss]、[torch.nn.CrossEntropyLoss]
+    * `torch.nn.CrossEntropyLoss`包含了`softmax`，需要输入的是最后一层线性层的输出，和标签`lables`。`lables`不是独热码，其特征是一维的，且数值表示的是独热码中1的位置。
   * [torch.optim.SGD](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html)
   * [torch.nn.Sigmoid](https://pytorch.org/docs/stable/generated/torch.nn.Sigmoid.html)、[torch.nn.ReLU]
     * `torch.nn.Sigmoid()`是一种`class`。
