@@ -46,4 +46,12 @@
     * [C++设计模式——原型模式 ](https://www.cnblogs.com/ring1992/p/9592911.html)
   * 外观模式
     * [C++设计模式——外观模式 ](https://www.cnblogs.com/ring1992/p/9593112.html)
-
+  * 组合模式
+    * [C++设计模式——组合模式 ](https://www.cnblogs.com/ring1992/p/9593013.html)
+    * 透明方式
+    * 安全方式
+  * 单例模式
+    * [C++设计模式——单例模式 ](https://www.cnblogs.com/ring1992/p/9592817.html)
+    * [C++ 单例模式 懒汉模式（延时加载） ](https://blog.csdn.net/cleverlemon/article/details/108428548)
+    * 饿汉式
+    * 懒汉式
