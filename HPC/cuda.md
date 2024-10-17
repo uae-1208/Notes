@@ -13,6 +13,7 @@
 2. CPU调用一个核函数的方式：
     > kernel<<<block_dim, thread_dim>>>(...)
 3. `threadIdx`, `blockIdx`, `blockDim`, `gridDim`
+   1. [cuda中threadIdx、blockIdx、blockDim和gridDim的使用）](https://zhuanlan.zhihu.com/p/544864997)
 4. dim(w, 1, 1) == dim(w) == w
 
 
