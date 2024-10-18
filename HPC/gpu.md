@@ -82,23 +82,7 @@
       2. 避免**Thread Divergence**线程分歧多产生于分支和循环。
          1. 线程分歧会影响wrap中的thread的执行效率。猜测这是因为GPU也存在指令流水线，而同一wrap中的32个threads执行相同的指令，当出现线程分歧时指令流水线会插入气泡，从而降低执行效率。
   2. 增大分子
-     1. step and work
-     2. reduce
-        1. 必须满足：binary and associate
-        2. step为O(logn)，work为O(n)。
-     3. scan
-        1. 隐式scan和显示scan
-           1. 二者代码的差异就是循环体内的语句颠倒一下
-        2. operator的特征值
-        3. 实现scan算法的并行性：
-           1. 对每一个输出元素的计算都进行reduce操作：step为O(logn)，work为O(n^2)。  
-           2. Hillis and Steele：step为O(logn)，work为O(nlogn)。
-              1. 适用于隐式scan？？？？
-           3. Blelloch：：step为O(logn)，work为O(nlogn)。
-              1. downsweep和上半部分的reduce是镜像的
-              2. Blelloch的step为2log2n，是Hillis and Steele的两倍，但是work更少。
-              3. 适用于显示scan？？？
-     4. histogram
+    
 
 
 
