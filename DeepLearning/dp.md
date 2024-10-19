@@ -1,9 +1,10 @@
 <!-- GFM-TOC -->
 - [任务](#任务)
 - [模型](#模型)
-- [优化方法](#优化方法)
+- [优化list](#优化list)
 - [误差](#误差)
 - [优化地图](#优化地图)
+- [Optimization Issue](#optimization-issue)
 - [CNN](#cnn)
 <!-- GFM-TOC -->
 ---
@@ -23,15 +24,21 @@
       * 激活函数为`sigmod()`
     * Rectified Linear Unit  
       * 激活函数为`RelU()`
+    * 分类问题
+      * 激活函数为`softmax()`
+    * [CNN](#cnn)卷积层和池化层
+  
 
-### 优化方法
+### 优化list
   1. 梯度下降
      * 梯度下降不一定能得到最优解，有可能是局部最优解
   2. SGD 随机梯度下降
      * 利用随机样本的噪声，推动训练越过鞍点。
   3. mini batches
-     * update：更新一次参数。
-     * epoch：遍历一次所有的batches
+  4. momentum 
+  5. learning rate
+  6. batch normalization
+
 
 ### 误差
   1. MSE 均方误差
@@ -42,7 +49,8 @@
   1. training loss too large
      1. model bias
         * 让model变得更复杂。
-     2. optimization issue
+     2. [Optimization Issue](#optimization-issue)
+        * [优化list](#优化list)
   2. training loss too small
      1. testing loss too large
         1. overfitting
@@ -58,7 +66,32 @@
                   5. dropout。
                2. 调整手段
                   1. N折叠交叉验证。
-        2. mismatch（训练集和测试集数据的分步差异很大，例如训练集是真人，测试机是卡通动漫人物）
+        2. mismatch（训练集和测试集数据的分步差异很大，例如训练集是真人，测试集是卡通动漫人物）
+
+
+### Optimization Issue
+1. critical point：鞍点和局部最小点
+   1. 在高维空间中，鞍点的数量要比局部最小点多不少。  
+      * 这里的理解可以参考三体中的君士坦丁堡故事。
+   2. 可以利用海森矩阵H来区分鞍点和局部最小点：`H是正定矩阵or负定矩阵->局部最小点；反之->鞍点`。
+   3. 也可以利用H矩阵帮助训练走出鞍点。
+      1. 找到一个H的负特征值以及对应的特征向量u.
+      2. 参数往u的方向更新。
+      * 运算量太大，不推荐。
+2. mini batch
+     * update：更新一次参数。epoch：遍历一次所有的batches。
+     * 每个batch的分布有细微差异，因此一个batch loss中的critical point在另一个batch loss中可能就不再是了。
+     * mini batch甚至还能提高测试的准确率。（[类神经网络训练不起来怎么办(二)批次(batch)与动量(momentum)](https://www.bilibili.com/video/BV1J94y1f7u5/?vd_source=d791a57f43dad7ca6a1d62950cab7001&spm_id_from=333.788.videopod.episodes&p=14) 17min）
+3. momentum 
+   * 利用惯性冲出critical point的范围。
+4. learning rate
+   * 在训练时，实际上走到critical point是很苦难的，大部分时loss都是在critical point附近振荡。=》学习率在训练后期时太大了。
+   1. RMS
+   2. RMSProp
+   3. Adam: RMSProp + Momentum
+   4. Learning Rate Scheduling
+5. batch normalization
+
 
 ### CNN
   1. 利用卷积算子可以捕捉邻近像素值的相关性（或者说，图形的局部特征），这是把所有像素拼接成一维feature向量无法做到的。
