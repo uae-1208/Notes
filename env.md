@@ -13,3 +13,4 @@
 ### Conda
 1. torchcrf
 2. pytorch-crf
+3. [Python的sklearn库安装教程（超简单）](https://blog.csdn.net/2301_77836489/article/details/138615618)

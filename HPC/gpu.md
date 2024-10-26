@@ -97,4 +97,10 @@
   
 
 
+cudamemory api-p282
+CPU上都是异步的，但是同一个stream中，GPU会排队
+需要注意GPU可能没有足够的资源完成不同stream中的GPU操作
+
+
+
 <div align="center"> <img src="./pic/gpu1.png"  width="600"/> 
