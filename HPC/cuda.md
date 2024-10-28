@@ -2,7 +2,7 @@
 - [核函数相关](#核函数相关)
 - [内存管理](#内存管理)
 - [内存分布](#内存分布)
-- [同步技术](#同步技术)
+- [异步、同步技术](#异步同步技术)
 - [原子操作](#原子操作)
 <!-- GFM-TOC -->
 ---
@@ -32,12 +32,15 @@
   * 假如某block当中有100个threads，且kernel在变量a的声明中添加了前缀`__shared__`，这并不意味这存在100个变量a，而是在该block的共享内存中存在一个变量a，a可被这100个线程共同访问。
 
 
-### 同步技术
+### 异步、同步技术
 * __syncthreads()
-  * 确保线程块中的每个线程都执行完 __syncthreads()前面的语句后，才会执行下一条语句。
+  * 确保线程块中的每个线程都执行完kernal __syncthreads()前面的语句后，才会执行下一条语句。
 * cudaDeviceSynchronize()
-  * CPU发起一个kernel后会继续执行host程序，通过这个函数可以阻塞CPU进程，直至GPU执行完kernel。
+  * 阻塞host程序，**所有异步流**中的device kernal执行完后才会继续执行host程序。
   * 避免CPU访问哪些还未被GPU处理好的数据。
+* cudaStreamSynchronize(stream)
+  * 阻塞host程序，当**指定流**中的device kernal执行完后才会继续执行host程序。
+* cudaMemsetAsync()....
 
 
 ### 原子操作
