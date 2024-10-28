@@ -14,3 +14,8 @@
 1. torchcrf
 2. pytorch-crf
 3. [Python的sklearn库安装教程（超简单）](https://blog.csdn.net/2301_77836489/article/details/138615618)
+4. keras
+5. bs4
+6. pyspellchecker
+7. nltk
+8. [【Pytorch】torchtext终极安装方法及常见问题](https://blog.csdn.net/zuoli_/article/details/129270408)
