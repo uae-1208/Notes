@@ -6,6 +6,7 @@
 - [内存](#内存)
 - [GPU的同步技术](#gpu的同步技术)
 - [math/memory](#mathmemory)
+- [GPU程序优化](#gpu程序优化)
 <!-- GFM-TOC -->
 ---
 
@@ -77,18 +78,49 @@
          2. Coalesce —— 编写kernel的代码，使GPU总是连续地访问**全局内存**。
             * 硬件上，GPU访问global memory时，哪怕只访问一个单位的内存，实际上会访问该包含该单位的附近的一大块内存。
             * 与coalesce访存相对应的就是`stride`访存。
+            * 当多个threads运行相同的代码并行访问global memory时，相邻thread访问的内存距离越小，越是好的coalescing。
+              * 一个坏的coalescing例子就是矩阵转置kernal(intro unit 5)。
             * [CUDA 编程之 Memory Coalescing](https://zhuanlan.zhihu.com/p/300785893)
-         3. atomic memory operation
+         3. 利用pinned memory（host memory）。
+         4. atomic memory operation
       2. 避免**Thread Divergence**线程分歧多产生于分支和循环。
          1. 线程分歧会影响wrap中的thread的执行效率。猜测这是因为GPU也存在指令流水线，而同一wrap中的32个threads执行相同的指令，当出现线程分歧时指令流水线会插入气泡，从而降低执行效率。
+         2. 一般来说，wrap对于分支分歧的处理是每个线程都执行每个分支，然后根据分支条件选择对应分支的结果。
+            * 这样既增加了运行时间，又增加了运行功耗。
+            * Nvidia的GPU对于分支分歧的解决方法是：让符合分支条件的线程去执行该分支，与此同时其它线程阻塞。    这种情况下虽然运行时间没有减少，但是运行功耗大大减少。
   2. 增大分子
     
 
+### GPU程序优化
+1. ‌Amdahl's law
+   * 优先优化时间占比最长的代码块。
+2. [CUDA相关 | 如何安装deviceQuery](https://zhuanlan.zhihu.com/p/666647168)
+   * 可以利用它知晓很多GPU的信息。
+   * `Theoretical peak bandwidth` = memory clock rate * memory bus rate
+     * 可以根据代码的数据运输和kernal运行时间粗略估计实际的内存带宽，它至少应该达到**理论峰值的40%**。
+   * `Dram Utilization`
+3. [CUDA编程 - Nsight system & Nsight compute 的安装和使用 - 学习记录](https://blog.csdn.net/weixin_40653140/article/details/136238420)
+4. Tiling技术
+   * 当无法避免地出现坏coalescing时，分块可以一定程度上减少坏coalescing，缩短访问全局内存的时间。
+   * [The CUDA Parallel Programming Model - 7.Tiling](https://nichijou.co/cuda7-tiling/)
+   * [Cuda 编程之 Tiling](https://zhuanlan.zhihu.com/p/342103911)
+5. Occupancy
+   * 影响occupancy的因素有：blocks/SM、thread/SM、registers/thread、shared memory/block等
+   * 并非occupancy越高，程序越好。occupancy过高意味着程序受到了硬件资源的限制，无法充分并行。
+6. Thread Diverge
+   * 对于同一个warp内的threads来说，最大减速比为32。
+7. 利用stream进行异步操作
+   * 不同的stream之间异步，同一个stream内同步。
+8. 使用host memory中的pinned memory
+   * [CUDA 之 Pinned Memory](https://www.jianshu.com/p/e92e72c0ba51)
+   * [CUDA:页锁定内存(pinned memory)和按页分配内存(pageable memory )](https://www.cnblogs.com/whiteBear/p/17842246.html)
 
 
-* 一般来说，wrap对于分支分歧的处理是每个线程都执行每个分支，然后根据分支条件选择对应分支的结果。
-  * 这样既增加了运行时间，又增加了运行功耗。
-  * Nvidia的GPU对于分支分歧的解决方法是：让符合分支条件的线程去执行该分支，与此同时其它线程阻塞。    这种情况下虽然运行时间没有减少，但是运行功耗大大减少。
+
+
+
+
+
 * 计算掩盖访存
   * GPU显存的延迟非常大，如果cuda core一直等待访存会严重浪费性能。
   * 当一些wrap在等待访存结束时，wrap调度器会激活其它wrap来执行，如此反复，充分利用硬件性能。

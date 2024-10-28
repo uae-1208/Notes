@@ -9,11 +9,6 @@
   1. 函数重载
   2. 函数模板 
 
-* factory控制实例的创建。
-  * 简单工厂模式
-  * 工厂方法模式
-  * 抽象工厂模式
-
 * UML的静态图
   * 泛化
   * 实现
@@ -39,6 +34,9 @@
 
 * 设计模式
   * 工厂模式
+    * 简单工厂模式
+    * 工厂方法模式
+    * 抽象工厂模式
   * 策略模式
   * 装饰模式
   * 代理模式
@@ -53,5 +51,15 @@
   * 单例模式
     * [C++设计模式——单例模式 ](https://www.cnblogs.com/ring1992/p/9592817.html)
     * [C++ 单例模式 懒汉模式（延时加载） ](https://blog.csdn.net/cleverlemon/article/details/108428548)
-    * 饿汉式
-    * 懒汉式
+    * 饿汉式和懒汉式
+    * 懒加载
+  * 备忘录模式
+    * [C++设计模式——备忘录模式 ](https://www.cnblogs.com/ring1992/p/9593487.html)
+    * 窄接口和款接口
+    * 原发器
+  * 建造者模式
+    * [C++设计模式——建造者模式 ](https://www.cnblogs.com/ring1992/p/9592877.html)
+    * builder和director
+  * 模板方法模式
+    * [C++设计模式——模板方法模式 ](https://www.cnblogs.com/ring1992/p/9593609.htmll)
+    * 模板方法（template method）即顶层逻辑
