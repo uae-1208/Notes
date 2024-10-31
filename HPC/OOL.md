@@ -61,5 +61,13 @@
     * [C++设计模式——建造者模式 ](https://www.cnblogs.com/ring1992/p/9592877.html)
     * builder和director
   * 模板方法模式
-    * [C++设计模式——模板方法模式 ](https://www.cnblogs.com/ring1992/p/9593609.htmll)
+    * [C++设计模式——模板方法模式 ](https://www.cnblogs.com/ring1992/p/9593609.html)
     * 模板方法（template method）即顶层逻辑
+  * 享元模式
+    * [C++设计模式——享元模式 ](https://www.cnblogs.com/ring1992/p/9593235.html)
+    * 大量重复元素
+  * 观察者模式
+    * [C++设计模式——观察者模式 ](https://www.cnblogs.com/ring1992/p/9593502.html)
+    * 订阅和发布
+  * 状态模式
+    * [C++设计模式——状态模式 ](https://www.cnblogs.com/ring1992/p/9593533.html)
