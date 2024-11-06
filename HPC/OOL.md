@@ -71,3 +71,9 @@
     * 订阅和发布
   * 状态模式
     * [C++设计模式——状态模式 ](https://www.cnblogs.com/ring1992/p/9593533.html)
+* 适配器模式
+    * [C++设计模式——适配器模式 ](https://www.cnblogs.com/ring1992/p/9592942.html)
+    * 类适配器和对象适配器
+* 调停/中介者模式
+    * [C++设计模式——中介者模式 ](https://www.cnblogs.com/ring1992/p/9593451.html)
+    * 调停者和同事
