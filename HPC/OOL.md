@@ -77,3 +77,9 @@
 * 调停/中介者模式
     * [C++设计模式——中介者模式 ](https://www.cnblogs.com/ring1992/p/9593451.html)
     * 调停者和同事
+* 迭代器模式
+    * [C++设计模式——迭代器模式 ](https://www.cnblogs.com/ring1992/p/9593404.html)
+    * 迭代器和容器
+    * 容器中对象的实现与遍历解耦
+* 桥接模式
+    * [C++设计模式——桥接模式 ](https://www.cnblogs.com/ring1992/p/9592983.html)
