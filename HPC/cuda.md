@@ -4,6 +4,7 @@
 - [内存分布](#内存分布)
 - [异步、同步技术](#异步同步技术)
 - [原子操作](#原子操作)
+- [待学习](#待学习)
 <!-- GFM-TOC -->
 ---
 
@@ -47,3 +48,10 @@
 * atomicADD/SUB/AND/OR/XOR
   * 只允许特定的操作
   * 只运行integer
+
+
+
+### 待学习
+1. [CUDA相关 | 如何安装deviceQuery](https://zhuanlan.zhihu.com/p/666647168)
+2. [CUDA编程 - Nsight system & Nsight compute 的安装和使用 - 学习记录](https://blog.csdn.net/weixin_40653140/article/details/136238420)
+3. cuBLAS

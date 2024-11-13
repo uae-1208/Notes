@@ -7,6 +7,8 @@
 - [Optimization Issue](#optimization-issue)
 - [CNN](#cnn)
 - [RNN](#rnn)
+- [Self-attention](#self-attention)
+- [Transformer](#transformer)
 <!-- GFM-TOC -->
 ---
 
@@ -96,10 +98,10 @@
 
 ### CNN
   1. CNN的“本质”理解
-      * 感知机识别图像时，一般第一层网络中1个神经元去捕捉1个局部特征，多个神经元捕捉不同特征，然后再输入进后续的网络，分辨图像是否是我们想要的。
-      * 但是这个特征可能出现在图片的任意位置，感知机模型把神经元位置固定死了，所以模型有提升空间。
-      * 由此诞生出共享参数的天才思想。
-      * 一个卷积的操作本质上等效于感知机的一个神经元，但是卷积的全图遍历使得模型对于局部特征的位置随机性有了更强的适应性。
+      * 感知机识别图像时，一般第一层网络中1个神经元去捕捉1个局部特征，多个神经元捕捉不同特征，然后再输入进后续的全连接层网络，分辨图像是否是我们想要的。→
+      * 但是这个特征可能出现在图片的任意位置，而感知机模型把神经元位置固定死了，所以模型有提升空间。→
+      * 由此诞生出共享参数的天才思想。→
+      * 一个卷积的操作本质上等效于感知机的一个神经元，但是卷积的全图遍历使得模型对于局部特征的位置随机性有了更强的适应性。→
       * 一个卷积负责捕捉一个局部特征，多个卷积可以捕捉更多不同的图像细节。卷积层的不同filter等效于感知机的不同神经元，但是效果更好，同时参数数量更少。
   2. 全连接层的权重参数个数一般远大于卷积层。
      1. 因为卷积层的参数可以被重复利用。
@@ -138,7 +140,55 @@
    7. RNN类模型的不同结构：
       1. 一对多：文本生成
       2. 多对一：文本分类
-      3. 多对多
+      3. 多对多：seq2seq
+         1. N对N：词性标注
+         2. N对N'：翻译
+
+
+
+### Self-attention
+   1. q:query; k:key; v:value
+   2. ‌attention score
+   3. ‌自注意力是复杂版的cnn:当输入的不是sequence，而是图片的像素值时，每一个像素可以任意与其它任何像素产生关联（attention scores）。
+   4. 自注意力的粗略计算过程:
+      > I.shape = (N,A)
+      > wq.shape = (A,H), wk.shape = (A,H),wv.shape = (A,B)
+      > Q = I x wq → (N,H)
+      > K = I x wk → (N,H)
+      > V = a x wv → (N,B)
+      > A = Q x KT → (N,N)
+      > O = A x V  → (N,B)
+      > 其中N为序列长度，A为输入的维度
+      > H为隐藏层维度，B为输出维度   
+      > I为输入，O为输出，KT为K的转置
+      > A为注意力分数矩阵，每一行为一组
+   5. 由以上计算过程可知，自注意力层的运算具有高并行性（N个获得value向量的计算可以同时进行），且输入序列N可以为任意值。
+   6. 多头注意力。
+   
+
+### Transformer
+   1. positional encoding
+      * 为Encoder/Decoder的输入增加位置信息，否则输入序列位置交换，输出结果会一模一样（输出序列进行了与输入相同的位置交换）。
+      * [68 Transformer【动手学深度学习v2】](https://www.bilibili.com/video/BV1Kq4y1H7FL?spm_id_from=333.788.videopod.episodes&vd_source=d791a57f43dad7ca6a1d62950cab7001)第一部分。
+   2. Decoder分为AT和NAT两种。
+      1. antoregressive
+         * 首先对Decoder输入序列长度为1的`BEGIN`，此时Decoder输出seq1，再对Decoder输入序列长度为2的`BEGIN`+seq1，此时Decoder输出seq2，如此反复，直到Decoder输出`END`。
+      2. non-antoregressive
+         * 直接对Decoder输入足够多的`BEGIN`，让Decoder一次性输出所有的seqs。
+         * 至于足够多的`BEGIN`到底有多少个，看网课。
+   3. Decoder blocks中第一个多头自注意力层采用了`masked`。
+      *  每个序列与它之前序列的attention scores正常计算，与它之后序列的attention scores置零。
+      *  每个序列只考虑它与它之前序列的关系。
+   4. Decoder与Encoder的耦合
+         * Decoder的第二个注意力层的K、V矩阵由Encoder的输出产生，Q矩阵由Decoder自己产生。
+         * Encoder和Decoder中的block num必须一致，Encoder和Decoder中每一层次的block两两耦合。
+   5. Decoder的Error Propagation问题
+      * Decoder会把上一次的输出与上一次的输入拼接成一块，作为这一次的输入。如果某次的输出有问题，那么这个error接下来会一直作为Decoder的输入，导致“一步错，步步错”。
+      * 为了避免Error Propagation，训练Transformer时，会把**正确的序列标签**输入给Decoder，而`把上一次的输出与上一次的输入拼接成一块，作为这一次的输入`这种做法只在推理中进行。这就是**Teacher Forcing**。
+
+
+
+ 
 
 
 
