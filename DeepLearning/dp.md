@@ -9,6 +9,7 @@
 - [RNN](#rnn)
 - [Self-attention](#self-attention)
 - [Transformer](#transformer)
+- [BERT](#bert)
 <!-- GFM-TOC -->
 ---
 
@@ -188,7 +189,26 @@
 
 
 
- 
+### BERT
+   1. semi-supervised，self-supervised(一种特殊的无监督学习)
+   2. BERT采用了半监督学习：自监督学习+监督学习
+      1. 自监督（预训练阶段）
+         * 对输入文本进行`mask`，让模型去`predict masked token`。
+         * “做填词训练”。
+      2. 监督（微调阶段）
+         * 在预训练BERT的架构基础上增加`specific layers`,去完成特定的下游任务。
+         * 针对五花八门的下游任务进行有标注的训练。
+         * BERT的参数初始化为预训练的参数。
+         * 为了微调所设计的`specific layer`要尽可能小，要使预训练的参数在总参数中的占比尽可能大。
+   3. 特殊标记
+      * [CLS] - 每个序列的第一个标记（指的是传递给BERT的输入标记序列）始终是一个特殊的分类标记。
+        * [CLS]表示该特征用于分类模型，对非分类模型，该符号可以省去。
+      * [SEP] - 表示分句符号，用于断开输入语料中的两个句子。
+   4. adapter层：[NLP中的Adapters是什么？](https://www.zhihu.com/question/598574869)
+
+
+
+
 
 
 

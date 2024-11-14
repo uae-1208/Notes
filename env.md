@@ -11,6 +11,11 @@
 6. torchvision-0.16.0-py38_cu121.tar.bz2
 
 
+### Cuda
+1. filezilla
+   
+   
+
 ### Conda
 1. torchcrf
 2. pytorch-crf
@@ -20,3 +25,5 @@
 6. pyspellchecker
 7. nltk
 8. [【Pytorch】torchtext终极安装方法及常见问题](https://blog.csdn.net/zuoli_/article/details/129270408)
+9. seaborn
+10. transformers
