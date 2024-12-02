@@ -71,15 +71,28 @@
     * 订阅和发布
   * 状态模式
     * [C++设计模式——状态模式 ](https://www.cnblogs.com/ring1992/p/9593533.html)
-* 适配器模式
-    * [C++设计模式——适配器模式 ](https://www.cnblogs.com/ring1992/p/9592942.html)
-    * 类适配器和对象适配器
-* 调停/中介者模式
-    * [C++设计模式——中介者模式 ](https://www.cnblogs.com/ring1992/p/9593451.html)
-    * 调停者和同事
-* 迭代器模式
-    * [C++设计模式——迭代器模式 ](https://www.cnblogs.com/ring1992/p/9593404.html)
-    * 迭代器和容器
-    * 容器中对象的实现与遍历解耦
-* 桥接模式
-    * [C++设计模式——桥接模式 ](https://www.cnblogs.com/ring1992/p/9592983.html)
+  * 适配器模式
+      * [C++设计模式——适配器模式 ](https://www.cnblogs.com/ring1992/p/9592942.html)
+      * 类适配器和对象适配器
+  * 调停/中介者模式
+      * [C++设计模式——中介者模式 ](https://www.cnblogs.com/ring1992/p/9593451.html)
+      * 调停者和同事
+  * 迭代器模式
+      * [C++设计模式——迭代器模式 ](https://www.cnblogs.com/ring1992/p/9593404.html)
+      * 迭代器和容器
+      * 容器中对象的实现与遍历解耦
+  * 桥接模式
+      * [C++设计模式——桥接模式 ](https://www.cnblogs.com/ring1992/p/9592983.html)
+  * 访问者模式
+      * [C++设计模式——访问者模式 ](https://www.cnblogs.com/ring1992/p/9593591.html)
+      * 访问者  
+      * 元素
+      * 对象结构
+  * 解释器模式
+      * [C++设计模式——解释器模式 ](https://www.cnblogs.com/ring1992/p/9593350.html)
+      * 文法规则、抽象语法树
+      * 终结表达式、非终结表达式
+  * 命令模式
+      * [C++设计模式——命令模式 ](https://www.cnblogs.com/ring1992/p/9593327.html)
+  
+
